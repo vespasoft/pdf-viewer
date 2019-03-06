@@ -22,6 +22,7 @@ import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,11 +62,6 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
 
     private PdfViewerPresenter pdfViewerPresenter;
 
-    /**
-     * PDF page index
-     */
-    // private int mPageIndex;
-
     public PdfRendererBasicFragment() {
     }
 
@@ -73,8 +69,6 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_pdf_renderer, container, false);
-
-
         return view;
     }
 
@@ -100,6 +94,17 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        int mPageIndex = 0;
+        // If there is a savedInstanceState (screen orientations, etc.), we restore the page index.
+        if (null != savedInstanceState) {
+            mPageIndex = savedInstanceState.getInt(STATE_CURRENT_PAGE_INDEX, 0);
+        }
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         pdfViewerPresenter.renderFile();
@@ -107,11 +112,11 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
 
     @Override
     public void onStop() {
-        try {
+        /*try {
             pdfViewerPresenter.onDestroy();
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        }*/
         super.onStop();
     }
 
@@ -123,14 +128,7 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
         }
     }
 
-    /**
-     * Updates the state of 2 control buttons in response to the current page index.
-     */
-    /*private void updateUi() {
-        int index = pdfViewerPresenter.getCurrentPage().getIndex();
-        int pageCount = pdfViewerPresenter.getPageCount();
-        //getActivity().setTitle(getString(R.string.app_name_with_index, index + 1, pageCount));
-    }*/
+
 
     @Override
     public void renderTitle(String title) {
@@ -141,7 +139,6 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
     public void renderPage(Bitmap bitmap) {
         // We are ready to show the Bitmap to user.
         mViewer.setImageBitmap(bitmap);
-        //updateUi();
     }
 
     @Override

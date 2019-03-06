@@ -83,21 +83,29 @@ public class PdfViewerPresenter {
         showPage(getPageIndex() + 1);
     }
 
+    public void onClosePage() {
+        if (null != mCurrentPage) {
+            mCurrentPage.close();
+        }
+    }
+
     /**
      * Closes the {@link android.graphics.pdf.PdfRenderer} and related resources.
      *
      * @throws java.io.IOException When the PDF file cannot be closed.
      */
     public void onDestroy() throws IOException {
-        if (null != mCurrentPage) {
-            mCurrentPage.close();
-        }
+        onClosePage();
         mPdfRenderer.close();
         mFileDescriptor.close();
     }
 
+    public PdfRenderer.Page getCurrentPage() {
+        return mCurrentPage;
+    }
+
     public int getPageIndex() {
-        return mCurrentPage.getIndex();
+        return mPageIndex;
     }
 
     /**
@@ -132,13 +140,13 @@ public class PdfViewerPresenter {
      * @param index The page index.
      */
     private void showPage(int index) {
+        mPageIndex = index;
         if (getPageCount() <= index) {
             return;
         }
         // Make sure to close the current page before opening another one.
-        if (null != mCurrentPage) {
-            mCurrentPage.close();
-        }
+        onClosePage();
+
         // Use `openPage` to open a specific page in PDF.
         mCurrentPage = mPdfRenderer.openPage(index);
         // Important: the destination bitmap must be ARGB (not RGB).
@@ -155,14 +163,10 @@ public class PdfViewerPresenter {
     }
 
     private void renderTitle() {
-        mTitle = mFile.getAbsolutePath() + " (%1$d/%2$d)";
+        mTitle = mFile.getName() + " (%1$d/%2$d)";
         mTitle = mTitle.replace("%1$d", String.valueOf(getPageIndex() + 1));
         mTitle = mTitle.replace("%2$d", String.valueOf(getPageCount()));
         view.get().renderTitle(mTitle);
-    }
-
-    private PdfRenderer.Page getCurrentPage() {
-        return mCurrentPage;
     }
 
     private int getPageCount() {
