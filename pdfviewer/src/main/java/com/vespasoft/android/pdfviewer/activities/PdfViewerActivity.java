@@ -1,6 +1,12 @@
 package com.vespasoft.android.pdfviewer.activities;
 
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -10,9 +16,16 @@ import android.view.View;
 import android.widget.Button;
 
 import com.vespasoft.android.pdfviewer.R;
-import com.vespasoft.android.pdfviewer.fragments.PdfRendererBasicFragment;
+import com.vespasoft.android.pdfviewer.adapter.DocumentPageAdapter;
+import com.vespasoft.android.pdfviewer.fragments.PdfRendererFragment;
+import com.vespasoft.android.pdfviewer.presenter.PdfRendererPresenter;
+import com.vespasoft.android.pdfviewer.presenter.PdfViewerPresenter;
+import com.vespasoft.android.pdfviewer.views.PdfRenderer;
+import com.vespasoft.android.pdfviewer.views.PdfViewer;
 
-public class PdfViewerActivity extends AppCompatActivity implements View.OnClickListener {
+import java.io.File;
+
+public class PdfViewerActivity extends AppCompatActivity implements PdfViewer, View.OnClickListener {
 
     public static final String FRAGMENT_PDF_RENDERER_BASIC = "pdf_renderer_basic";
 
@@ -26,17 +39,13 @@ public class PdfViewerActivity extends AppCompatActivity implements View.OnClick
      */
     private Button mButtonNext;
 
-    /**
-     * {@link PdfRendererBasicFragment} content a fragment instance of the pdf viewer
-     */
-    private PdfRendererBasicFragment mPdfRendererFragment;
+    private ViewPager mViewPager;
+    private PagerAdapter mPagerAdapter;
 
-    private void setUpToolbar() {
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    }
+    /**
+     * {@link PdfViewerPresenter} content a PDFViewer Presenter instance
+     */
+    private PdfViewerPresenter pdfViewerPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,24 +59,43 @@ public class PdfViewerActivity extends AppCompatActivity implements View.OnClick
 
         setUpToolbar();
 
-        if (savedInstanceState == null) {
-            mPdfRendererFragment = new PdfRendererBasicFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, mPdfRendererFragment,
-                            FRAGMENT_PDF_RENDERER_BASIC)
-                    .commit();
-        } else {
-            mPdfRendererFragment = (PdfRendererBasicFragment) getSupportFragmentManager().findFragmentById(R.id.container);
-        }
+        Uri uri = getIntent().getData();
+
+        // create instance of View Presenter
+        pdfViewerPresenter = new PdfViewerPresenter();
+        pdfViewerPresenter.setView(this, new File(uri.getPath()), 0);
+
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        pdfViewerPresenter.renderFile();
+    }
+
+    @Override
+    public void renderViewPager(int pages) {
+        mViewPager = findViewById(R.id.vpPager);
+        mPagerAdapter = new DocumentPageAdapter(getSupportFragmentManager(), pages);
+        mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setClipToPadding(true);
+        //mViewPager.setPageTransformer(true, new BookFlipPageTransformer());
+    }
+
+    private void setUpToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
     public void onClick(View view) {
         int i = view.getId();
         if (i == R.id.previous) {
-            mPdfRendererFragment.onPreviousPage();
+            //mPdfRendererFragment.onPreviousPage();
         } else if (i == R.id.next) {
-            mPdfRendererFragment.onNextPage();
+            //mPdfRendererFragment.onNextPage();
         }
     }
 
@@ -90,6 +118,26 @@ public class PdfViewerActivity extends AppCompatActivity implements View.OnClick
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void renderTitle(String title) {
+        setTitle(title);
+    }
+
+    @Override
+    public void onShowPage(int index) {
+
+    }
+
+    @Override
+    public Context context() {
+        return this;
+    }
+
+    @Override
+    public Resources resources() {
+        return getResources();
     }
 
     public void showAlertInfo() {

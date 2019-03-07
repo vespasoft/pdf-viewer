@@ -4,15 +4,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 
-public interface PdfView {
+public interface PdfViewer {
 
-    void renderPage(Bitmap bitmap);
+    void renderViewPager(int pages);
 
     void renderTitle(String title);
 
-    void onNextPage();
-
-    void onPreviousPage();
+    void onShowPage(int index);
 
     Context context();
 

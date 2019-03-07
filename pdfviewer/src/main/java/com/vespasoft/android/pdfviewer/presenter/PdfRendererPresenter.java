@@ -7,7 +7,6 @@ import android.widget.Toast;
 
 import com.vespasoft.android.pdfviewer.R;
 import com.vespasoft.android.pdfviewer.views.PdfRenderer;
-import com.vespasoft.android.pdfviewer.views.PdfViewer;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,7 +14,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 
-public class PdfViewerPresenter {
+public class PdfRendererPresenter {
 
     /**
      * The filename of the PDF.
@@ -46,12 +45,12 @@ public class PdfViewerPresenter {
 
     private String mTitle;
 
-    private WeakReference<PdfViewer> view;
+    private WeakReference<PdfRenderer> view;
 
-    public PdfViewerPresenter() {
+    public PdfRendererPresenter() {
     }
 
-    public void setView(PdfViewer pdfView, File file, Integer index){
+    public void setView(PdfRenderer pdfView, File file, Integer index){
         this.view = new WeakReference<>(pdfView);
         mFile = file;
         mPageIndex = index;
@@ -61,7 +60,7 @@ public class PdfViewerPresenter {
     public void renderFile() {
         try {
             openRenderer(mFile);
-            //showPage(mPageIndex);
+            showPage(mPageIndex);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(view.get().context(), "Error! " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -131,9 +130,6 @@ public class PdfViewerPresenter {
         if (mFileDescriptor != null) {
             mPdfRenderer = new android.graphics.pdf.PdfRenderer(mFileDescriptor);
         }
-        // We are ready to show the Bitmap to user.
-        view.get().renderViewPager(getPageCount());
-        renderTitle();
     }
 
     /**
@@ -161,12 +157,14 @@ public class PdfViewerPresenter {
         // the default result.
         // Pass either RENDER_MODE_FOR_DISPLAY or RENDER_MODE_FOR_PRINT for the last parameter.
         mCurrentPage.render(bitmap, null, null, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+        // We are ready to show the Bitmap to user.
+        view.get().renderPage(bitmap);
         renderTitle();
     }
 
     private void renderTitle() {
         mTitle = mFile.getName() + " (%1$d/%2$d)";
-        mTitle = mTitle.replace("%1$d", String.valueOf(getPageIndex()));
+        mTitle = mTitle.replace("%1$d", String.valueOf(getPageIndex() + 1));
         mTitle = mTitle.replace("%2$d", String.valueOf(getPageCount()));
         view.get().renderTitle(mTitle);
     }

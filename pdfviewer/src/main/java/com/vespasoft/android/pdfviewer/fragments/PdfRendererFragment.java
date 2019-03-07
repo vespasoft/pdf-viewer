@@ -19,10 +19,8 @@ package com.vespasoft.android.pdfviewer.fragments;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -30,26 +28,21 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.vespasoft.android.pdfviewer.R;
 import com.vespasoft.android.pdfviewer.activities.PdfViewerActivity;
-import com.vespasoft.android.pdfviewer.presenter.PdfViewerPresenter;
-import com.vespasoft.android.pdfviewer.views.PdfView;
+import com.vespasoft.android.pdfviewer.presenter.PdfRendererPresenter;
+import com.vespasoft.android.pdfviewer.views.PdfRenderer;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
 
 /**
  * This fragment has a big {@ImageView} that shows PDF pages, and 2
  * {@link Button}s to move between pages. We use a
- * {@link PdfRenderer} to render PDF pages as
+ * {@link android.graphics.pdf.PdfRenderer} to render PDF pages as
  * {@link Bitmap}s.
  */
-public class PdfRendererBasicFragment extends Fragment implements PdfView {
+public class PdfRendererFragment extends Fragment implements PdfRenderer {
 
     /**
      * Key string for saving the state of current page index.
@@ -61,9 +54,26 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
      */
     private ImageView mViewer;
 
-    private PdfViewerPresenter pdfViewerPresenter;
+    private PdfRendererPresenter pdfRendererPresenter;
 
-    public PdfRendererBasicFragment() {
+    private int mPageIndex = 0;
+
+    public static PdfRendererFragment newInstance(int page) {
+        PdfRendererFragment fragmentFirst = new PdfRendererFragment();
+        Bundle args = new Bundle();
+        args.putInt(STATE_CURRENT_PAGE_INDEX, page);
+        fragmentFirst.setArguments(args);
+        return fragmentFirst;
+    }
+
+    public PdfRendererFragment() {
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // when the fragment has instancied by newInstance method
+        mPageIndex = getArguments().getInt(STATE_CURRENT_PAGE_INDEX, 0);
     }
 
     @Override
@@ -84,14 +94,14 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
         // Retain view references.
         mViewer = view.findViewById(R.id.viewer);
 
-        int mPageIndex = 0;
+
         // If there is a savedInstanceState (screen orientations, etc.), we restore the page index.
         if (null != savedInstanceState) {
             mPageIndex = savedInstanceState.getInt(STATE_CURRENT_PAGE_INDEX, 0);
         }
         // create instance of View Presenter
-        pdfViewerPresenter = new PdfViewerPresenter();
-        pdfViewerPresenter.setView(this, file, mPageIndex);
+        pdfRendererPresenter = new PdfRendererPresenter();
+        pdfRendererPresenter.setView(this, file, mPageIndex);
     }
 
     @Override
@@ -102,7 +112,7 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
     @Override
     public void onStart() {
         super.onStart();
-        pdfViewerPresenter.renderFile();
+        pdfRendererPresenter.renderFile();
     }
 
     @Override
@@ -118,14 +128,14 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (null != pdfViewerPresenter) {
-            outState.putInt(STATE_CURRENT_PAGE_INDEX, pdfViewerPresenter.getPageIndex());
+        if (null != pdfRendererPresenter) {
+            outState.putInt(STATE_CURRENT_PAGE_INDEX, pdfRendererPresenter.getPageIndex());
         }
     }
 
     @Override
     public void renderTitle(String title) {
-        getActivity().setTitle(title);
+        //getActivity().setTitle(title);
     }
 
     @Override
@@ -136,12 +146,17 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
 
     @Override
     public void onNextPage() {
-        pdfViewerPresenter.showNextPage();
+        pdfRendererPresenter.showNextPage();
     }
 
     @Override
     public void onPreviousPage() {
-        pdfViewerPresenter.showPreviousPage();
+        pdfRendererPresenter.showPreviousPage();
+    }
+
+    @Override
+    public void onShowPage(int index) {
+        pdfRendererPresenter.showPage(index);
     }
 
     @Override
