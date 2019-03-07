@@ -17,6 +17,7 @@
 package com.vespasoft.android.pdfviewer.fragments;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
@@ -44,9 +45,9 @@ import java.net.URI;
 
 /**
  * This fragment has a big {@ImageView} that shows PDF pages, and 2
- * {@link android.widget.Button}s to move between pages. We use a
- * {@link android.graphics.pdf.PdfRenderer} to render PDF pages as
- * {@link android.graphics.Bitmap}s.
+ * {@link Button}s to move between pages. We use a
+ * {@link PdfRenderer} to render PDF pages as
+ * {@link Bitmap}s.
  */
 public class PdfRendererBasicFragment extends Fragment implements PdfView {
 
@@ -56,7 +57,7 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
     private static final String STATE_CURRENT_PAGE_INDEX = "current_page_index";
 
     /**
-     * {@link android.widget.ImageView} that shows a PDF page as a {@link android.graphics.Bitmap}
+     * {@link ImageView} that shows a PDF page as a {@link Bitmap}
      */
     private ImageView mViewer;
 
@@ -96,12 +97,6 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        int mPageIndex = 0;
-        // If there is a savedInstanceState (screen orientations, etc.), we restore the page index.
-        if (null != savedInstanceState) {
-            mPageIndex = savedInstanceState.getInt(STATE_CURRENT_PAGE_INDEX, 0);
-        }
     }
 
     @Override
@@ -128,8 +123,6 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
         }
     }
 
-
-
     @Override
     public void renderTitle(String title) {
         getActivity().setTitle(title);
@@ -149,6 +142,11 @@ public class PdfRendererBasicFragment extends Fragment implements PdfView {
     @Override
     public void onPreviousPage() {
         pdfViewerPresenter.showPreviousPage();
+    }
+
+    @Override
+    public Resources resources() {
+        return getResources();
     }
 
     @Override

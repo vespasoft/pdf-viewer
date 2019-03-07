@@ -1,6 +1,5 @@
 package com.vespasoft.android.pdfviewer.presenter;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.pdf.PdfRenderer;
 import android.net.Uri;
@@ -29,7 +28,7 @@ public class PdfViewerPresenter {
     private ParcelFileDescriptor mFileDescriptor;
 
     /**
-     * {@link android.graphics.pdf.PdfRenderer} to render the PDF.
+     * {@link PdfRenderer} to render the PDF.
      */
     private PdfRenderer mPdfRenderer;
 
@@ -90,9 +89,9 @@ public class PdfViewerPresenter {
     }
 
     /**
-     * Closes the {@link android.graphics.pdf.PdfRenderer} and related resources.
+     * Closes the {@link PdfRenderer} and related resources.
      *
-     * @throws java.io.IOException When the PDF file cannot be closed.
+     * @throws IOException When the PDF file cannot be closed.
      */
     public void onDestroy() throws IOException {
         onClosePage();
@@ -109,7 +108,7 @@ public class PdfViewerPresenter {
     }
 
     /**
-     * Sets up a {@link android.graphics.pdf.PdfRenderer} and related resources.
+     * Sets up a {@link PdfRenderer} and related resources.
      */
     private void openRenderer(File file) throws IOException {
         if (!file.exists()) {
@@ -150,7 +149,9 @@ public class PdfViewerPresenter {
         // Use `openPage` to open a specific page in PDF.
         mCurrentPage = mPdfRenderer.openPage(index);
         // Important: the destination bitmap must be ARGB (not RGB).
-        Bitmap bitmap = Bitmap.createBitmap(mCurrentPage.getWidth(), mCurrentPage.getHeight(),
+        Bitmap bitmap = Bitmap.createBitmap(
+                view.get().resources().getDisplayMetrics().densityDpi * mCurrentPage.getWidth() / 72,
+                view.get().resources().getDisplayMetrics().densityDpi * mCurrentPage.getHeight() / 72,
                 Bitmap.Config.ARGB_8888);
         // Here, we render the page onto the Bitmap.
         // To render a portion of the page, use the second and third parameter. Pass nulls to get

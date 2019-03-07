@@ -1,10 +1,9 @@
 package com.vespasoft.android.pdfviewer.activities;
 
 import android.app.AlertDialog;
-import android.content.Context;
-import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,19 +11,18 @@ import android.widget.Button;
 
 import com.vespasoft.android.pdfviewer.R;
 import com.vespasoft.android.pdfviewer.fragments.PdfRendererBasicFragment;
-import com.vespasoft.android.pdfviewer.views.PdfView;
 
 public class PdfViewerActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String FRAGMENT_PDF_RENDERER_BASIC = "pdf_renderer_basic";
 
     /**
-     * {@link android.widget.Button} to move to the previous page.
+     * {@link Button} to move to the previous page.
      */
     private Button mButtonPrevious;
 
     /**
-     * {@link android.widget.Button} to move to the next page.
+     * {@link Button} to move to the next page.
      */
     private Button mButtonNext;
 
@@ -32,6 +30,13 @@ public class PdfViewerActivity extends AppCompatActivity implements View.OnClick
      * {@link PdfRendererBasicFragment} content a fragment instance of the pdf viewer
      */
     private PdfRendererBasicFragment mPdfRendererFragment;
+
+    private void setUpToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +48,7 @@ public class PdfViewerActivity extends AppCompatActivity implements View.OnClick
         mButtonPrevious.setOnClickListener(this);
         mButtonNext.setOnClickListener(this);
 
-        Uri uri = getIntent().getData();
+        setUpToolbar();
 
         if (savedInstanceState == null) {
             mPdfRendererFragment = new PdfRendererBasicFragment();
@@ -75,13 +80,26 @@ public class PdfViewerActivity extends AppCompatActivity implements View.OnClick
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int i = item.getItemId();
-        if (i == R.id.action_info) {
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.intro_message)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show();
+        if (i == android.R.id.home) {
+            goToBack();
+            return true;
+        } else if (i == R.id.action_info) {
+            showAlertInfo();
+            return true;
+        } else if (i == R.id.search) {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void showAlertInfo() {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.intro_message)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    public void goToBack() {
+        onBackPressed();
     }
 }

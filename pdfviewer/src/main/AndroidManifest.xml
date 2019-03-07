@@ -3,7 +3,9 @@
     package="com.vespasoft.android.pdfviewer">
 
     <application>
-        <activity android:name=".activities.PdfViewerActivity"></activity>
+        <activity
+            android:theme="@style/AppNoActionTheme"
+            android:name=".activities.PdfViewerActivity"></activity>
     </application>
 
 </manifest>
