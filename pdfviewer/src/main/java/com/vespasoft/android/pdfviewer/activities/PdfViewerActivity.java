@@ -3,7 +3,6 @@ package com.vespasoft.android.pdfviewer.activities;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -17,10 +16,7 @@ import android.widget.Button;
 
 import com.vespasoft.android.pdfviewer.R;
 import com.vespasoft.android.pdfviewer.adapter.DocumentPageAdapter;
-import com.vespasoft.android.pdfviewer.fragments.PdfRendererFragment;
-import com.vespasoft.android.pdfviewer.presenter.PdfRendererPresenter;
 import com.vespasoft.android.pdfviewer.presenter.PdfViewerPresenter;
-import com.vespasoft.android.pdfviewer.views.PdfRenderer;
 import com.vespasoft.android.pdfviewer.views.PdfViewer;
 
 import java.io.File;
@@ -93,9 +89,9 @@ public class PdfViewerActivity extends AppCompatActivity implements PdfViewer, V
     public void onClick(View view) {
         int i = view.getId();
         if (i == R.id.previous) {
-            //mPdfRendererFragment.onPreviousPage();
+            mViewPager.arrowScroll(View.FOCUS_LEFT);
         } else if (i == R.id.next) {
-            //mPdfRendererFragment.onNextPage();
+            mViewPager.arrowScroll(View.FOCUS_RIGHT);
         }
     }
 
@@ -123,11 +119,6 @@ public class PdfViewerActivity extends AppCompatActivity implements PdfViewer, V
     @Override
     public void renderTitle(String title) {
         setTitle(title);
-    }
-
-    @Override
-    public void onShowPage(int index) {
-
     }
 
     @Override
